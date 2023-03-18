@@ -1,54 +1,66 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace RayTracingCSharp
+﻿namespace RayTracingCSharp
 {
     internal class Vector3
     {
-        public float x { get; set; }
-        public float y { get; set; }
-        public float z { get; set; }
+        public float X { get; set; }
+        public float Y { get; set; }
+        public float Z { get; set; }
 
         // constructor
         public Vector3()
         {
-            x = 0;
-            y = 0;
-            z = 0;
+            X = 0;
+            Y = 0;
+            Z = 0;
         }
 
         public Vector3(float x, float y, float z)
         {
-            this.x = x;
-            this.y = y;
-            this.z = z;
+            this.X = x;
+            this.Y = y;
+            this.Z = z;
         }
 
         // operator overloading
+        public static Vector3 operator -(Vector3 vec)
+        {
+            vec.X = -vec.X;
+            vec.Y = -vec.Y;
+            vec.Z = -vec.Z;
+            return vec;
+        }
+
         public static Vector3 operator +(Vector3 a, Vector3 b)
         {
-            return new Vector3(a.x + b.x, a.y + b.y, a.z + b.z);
+            return new Vector3(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
+        }
+
+        public static Vector3 operator -(Vector3 a, Vector3 b)
+        {
+            return new Vector3(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
         }
 
         public static Vector3 operator *(float t, Vector3 a)
         {
-            return new Vector3(t * a.x, t * a.y, t * a.z);
+            return new Vector3(t * a.X, t * a.Y, t * a.Z);
+        }
+
+        public static Vector3 operator *(Vector3 a, float t)
+        {
+            return new Vector3(t * a.X, t * a.Y, t * a.Z);
         }
 
         public static Vector3 operator /(Vector3 a, float t)
         {
-            return new Vector3(a.x / t, a.y / t, a.z / t);
+            return new Vector3(a.X / t, a.Y / t, a.Z / t);
         }
 
         // method
         public void Set(float x, float y, float z)
         {
-            this.x = x;
-            this.y = y;
-            this.z = z;
+            this.X = x;
+            this.Y = y;
+            this.Z = z;
         }
 
         public static Vector3 One()
@@ -59,17 +71,29 @@ namespace RayTracingCSharp
         // util function
         public float Magnitude()
         {
-            return (float)Math.Sqrt(x * x + y * y + z * z);
+            return (float)Math.Sqrt(X * X + Y * Y + Z * Z);
         }
 
-        public Vector3 Normalize()
+        public static Vector3 Normalize(Vector3 vec)
         {
-            return this / this.Magnitude();
+            return vec / vec.Magnitude();
         }
 
         public override string ToString()
         {
-            return this.x.ToString() + ' ' + this.y.ToString() + ' ' + this.z.ToString();
+            return this.X.ToString() + ' ' + this.Y.ToString() + ' ' + this.Z.ToString();
+        }
+
+        /// <summary>
+        /// 向量的点积。
+        /// </summary>
+        /// <param name="vec1"></param>
+        /// <param name="vec2"></param>
+        /// <returns></returns>
+        public static float DotProduct(Vector3 vec1, Vector3 vec2)
+        {
+            float dot = vec1.X * vec2.X + vec1.Y * vec2.Y + vec1.Z * vec2.Z;
+            return dot;
         }
     }
 }

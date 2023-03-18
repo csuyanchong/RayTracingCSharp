@@ -1,33 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace RayTracingCSharp
+﻿namespace RayTracingCSharp
 {
     internal class Ray
     {
-        public Vector3 origin { get; set; }
-        public Vector3 direction { get; set; }
+        public Vector3 Origin { get; set; }
+        public Vector3 Direction { get; set; }
 
         // constructor
         public Ray()
         {
-            this.origin = new Vector3(0, 0, 0);
-            this.direction = new Vector3(0, 0, 1);
+            this.Origin = new Vector3(0, 0, 0);
+            this.Direction = new Vector3(0, 0, 1);
         }
 
         public Ray(Vector3 origin, Vector3 direction)
         {
-            this.origin = origin;
-            this.direction = direction;
+            this.Origin = origin;
+            this.Direction = direction;
         }
 
         // method
         public Vector3 Point_at_param(float t)
         {
-            return this.origin + t * this.direction;
+            return this.Origin + t * this.Direction;
         }
     }
 }
