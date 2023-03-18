@@ -8,12 +8,13 @@
             // image setting
             int imgWidth = 800;
             int imgHeight = 400;
+            int samplePerPix = 100;
 
             Console.WriteLine("P3");
             Console.WriteLine(imgWidth + " " + imgHeight);
             Console.WriteLine(255);
 
-            // scene
+            // scene part
             HittableList world = new();
             // sphere
             Vector3 sphereCenter = new(0, 0, -1);
@@ -27,24 +28,29 @@
             Hittable plane = new Sphere(planeCenter, planeRadius);
             world.Add(plane);
 
-            // render
-            Vector3 lowerLeftCorner = new(-2, -1, -1);
-            Vector3 horizen = new(4, 0, 0);
-            Vector3 vertical = new(0, 2, 0);
-            Vector3 origin = new(0, 0, 0);
+            // render part
+            // camera
+            Camera cam = new();
+            Ray rayCam;
 
-            Vector3 pt;
-            Vector3 color;
+            //Vector3 pt;
+            //Vector3 color;
             for (int j = imgHeight - 1; j >= 0; j--)
             {
                 for (int i = 0; i < imgWidth; i++)
                 {
-                    float u = i / (float)imgWidth;
-                    float v = j / (float)imgHeight;
-
-                    Ray ray = new(origin, lowerLeftCorner + u * horizen + v * vertical);
-
-                    color = Color(ray, world);
+                    // 每个像素多次采样，取平均值。
+                    Vector3 color = new(0, 0, 0);
+                    for (int k = 0; k < samplePerPix; k++)
+                    {
+                        Random random = new();
+                        float rd = random.NextSingle();
+                        float u = (i + rd) / imgWidth;
+                        float v = (j + rd) / imgHeight;
+                        rayCam = cam.GetRay(u, v);
+                        color += Color(rayCam, world);
+                    }
+                    color /= samplePerPix;
 
                     int r = (int)(color.X * 255.99f);
                     int g = (int)(color.Y * 255.99f);
@@ -66,7 +72,7 @@
             {
                 //Vector3 hitPoint = ray.Point_at_param(rec.t);
                 Vector3 hitPNormal = rec.normal;
-                return (hitPNormal + Vector3.One())* 0.5f;
+                return (hitPNormal + Vector3.One()) * 0.5f;
             }
             else
             {
