@@ -19,25 +19,22 @@
 
             // scene part
             HittableList world = new();
-            // sphere
-            Vector3 sphereCenter = new(0, 0, -1);
-            float sphereRadius = 0.5f;
-            Hittable sphere = new Sphere(sphereCenter, sphereRadius);
-            world.Add(sphere);
 
-            // plane
-            Vector3 planeCenter = new(0, -100.5f, -1);
-            float planeRadius = 100f;
-            Hittable plane = new Sphere(planeCenter, planeRadius);
-            world.Add(plane);
+            Material matGround = new Lambertian(new(0.8f, 0.8f, 0));
+            Material matCenter = new Lambertian(new(0.8f, 0.3f, 0.3f));
+            Material matLeft = new Metal(new(0.8f, 0.8f, 0.8f), 0.3f);
+            Material matRight = new Metal(new(0.8f, 0.6f, 0.2f), 1f);
+
+            world.Add(new Sphere(new(0, -100.5f, -1f), 100f, matGround));
+            world.Add(new Sphere(new(0, 0, -1f), 0.5f, matCenter));
+            world.Add(new Sphere(new(-1f, 0, -1f), 0.5f, matLeft));
+            world.Add(new Sphere(new(1f, 0, -1f), 0.5f, matRight));
 
             // render part
             // camera
             Camera cam = new();
             Ray rayCam;
 
-            //Vector3 pt;
-            //Vector3 color;
             for (int j = imgHeight - 1; j >= 0; j--)
             {
                 for (int i = 0; i < imgWidth; i++)
@@ -56,9 +53,9 @@
                     color /= samplePerPix;
                     color = new Vector3(MathF.Sqrt(color.X), MathF.Sqrt(color.Y), MathF.Sqrt(color.Z));
 
-                    int r = (int)(color.X * 255.99f);
-                    int g = (int)(color.Y * 255.99f);
-                    int b = (int)(color.Z * 255.99f);
+                    int r = Math.Clamp((int)(color.X * 255.99f), 0, 255);
+                    int g = Math.Clamp((int)(color.Y * 255.99f), 0, 255);
+                    int b = Math.Clamp((int)(color.Z * 255.99f), 0, 255);
 
                     Console.Write(r + " " + g + " " + b + "\n");
                     //pt = new Vector3(i * 255.0f / imgWidth, 0, j * 255.0f / imgHeight);
@@ -79,17 +76,18 @@
 
             if (world.Hit(ray, 0.001f, float.PositiveInfinity, rec))
             {
-                // 递归返回碰撞物体的颜色，每次反射减少50%的能量。
-                var target = rec.point + rec.normal + RandomPointInUnitSphere();
-                return 0.5f *Color(new Ray(rec.point, target - rec.point), world, depth - 1);
+                if (rec.mat !=null && rec.mat.Scatter(ray, rec, out Color attenuation, out Ray rayScattered))
+                {
+                    // 注：这里的*不是向量叉乘，而是相应分量的乘积。
+                    return attenuation * Color(rayScattered, world, depth - 1);
+                }
+                return new Vector3(0, 0, 0);
             }
-            else
-            {
-                // 返回蓝色渐变背景。
-                Vector3 unitDir = Vector3.Normalize(ray.Direction);
-                float t = 0.5f * (unitDir.Y + 1.0f);
-                return (1.0f - t) * Vector3.One() + t * new Vector3(0.5f, 0.7f, 1.0f);
-            }
+
+            // 返回蓝色渐变背景。
+            Vector3 unitDir = Vector3.Normalize(ray.Direction);
+            float t = 0.5f * (unitDir.Y + 1.0f);
+            return (1.0f - t) * Vector3.One() + t * new Vector3(0.5f, 0.7f, 1.0f);
 
         }
 
@@ -111,19 +109,5 @@
             return (-b - MathF.Sqrt(discriminant)) / (2 * a);
         }
 
-        /// <summary>
-        /// 返回单位球内的随机点：-1<x<1, -1<y<1, -1<z<1。
-        /// </summary>
-        /// <returns></returns>
-        public static Vector3 RandomPointInUnitSphere()
-        {
-            Vector3 res;
-            Random rd =  new ();
-            do
-            {
-                res = 2 * new Vector3(rd.NextSingle(), rd.NextSingle(), rd.NextSingle()) - Vector3.One();
-            } while (res.Magnitude() >= 1.0);
-            return res;
-        }
     }
 }

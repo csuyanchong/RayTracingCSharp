@@ -4,11 +4,12 @@
     {
         public Vector3 Center { get; set; }
         public float Radius { get; set; }
-
-        public Sphere(Vector3 center, float r)
+        public Material material;
+        public Sphere(Vector3 center, float r, Material material)
         {
             this.Center = center;
             this.Radius = r;
+            this.material = material;
         }
 
         public override bool Hit(Ray ray, float tMin, float tMax, HitRecord rec)
@@ -31,6 +32,7 @@
                     rec.point = ray.Point_at_param(temp);
                     Vector3 outwardNormal = (rec.point - Center) / Radius;
                     rec.SetFaceNormal(ray, outwardNormal);
+                    rec.mat = material;
                     return true;
                 }
 
@@ -41,10 +43,10 @@
                     rec.point = ray.Point_at_param(temp);
                     Vector3 outwardNormal = (rec.point - Center) / Radius;
                     rec.SetFaceNormal(ray, outwardNormal);
+                    rec.mat = material;
                     return true;
                 }
             }
-            //return (-b - MathF.Sqrt(discriminant)) / (2 * a);
             return false;
         }
     }

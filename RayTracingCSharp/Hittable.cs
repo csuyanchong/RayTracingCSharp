@@ -6,6 +6,7 @@
         public Vector3 normal;
         public float t;
         public bool frontFace;
+        public Material ?mat;
 
         public HitRecord()
         {

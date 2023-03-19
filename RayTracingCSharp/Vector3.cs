@@ -29,7 +29,7 @@
             vec.Z = -vec.Z;
             return vec;
         }
-
+            
         public static Vector3 operator +(Vector3 a, Vector3 b)
         {
             return new Vector3(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
@@ -50,6 +50,11 @@
             return new Vector3(t * a.X, t * a.Y, t * a.Z);
         }
 
+        public static Vector3 operator *(Vector3 a, Vector3 b)
+        {
+            return new Vector3(a.X * b.X, a.Y * b.Y, a.Z * b.Z);
+        }
+
         public static Vector3 operator /(Vector3 a, float t)
         {
             return new Vector3(a.X / t, a.Y / t, a.Z / t);
@@ -61,6 +66,11 @@
             this.X = x;
             this.Y = y;
             this.Z = z;
+        }
+
+        public static Vector3 Zero()
+        {
+            return new Vector3(1, 1, 1);
         }
 
         public static Vector3 One()
@@ -94,6 +104,14 @@
         {
             float dot = vec1.X * vec2.X + vec1.Y * vec2.Y + vec1.Z * vec2.Z;
             return dot;
+        }
+
+        public static Vector3 CrossProduct(Vector3 vec1, Vector3 vec2)
+        {
+            return new Vector3(vec1.Y * vec2.Z - vec1.Z * vec2.Y, 
+                vec1.Z * vec2.X - vec1.X * vec2.Z, 
+                vec1.X * vec2.Y - vec2.X * vec1.Y
+                );
         }
     }
 }
