@@ -23,5 +23,11 @@ namespace RayTracingCSharp
             } while (res.Magnitude() >= 1.0);
             return res;
         }
+
+        public static float RandomFloat()
+        {
+            Random rd = new();
+            return rd.NextSingle();
+        }
     }
 }

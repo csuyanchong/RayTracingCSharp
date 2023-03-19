@@ -51,4 +51,95 @@
         }
     }
 
+    internal class Dielectric : Material
+    {
+        /// <summary>
+        /// 反射率
+        /// </summary>
+        public float refIndex;
+
+        public Dielectric(float refIndex)
+        {
+            this.refIndex = refIndex;
+        }
+
+        public override bool Scatter(Ray rayIn, HitRecord rec, out Color attenuation, out Ray rayScattered)
+        {
+            attenuation = new Color(1.0f, 1.0f, 1.0f);
+            Vector3 incident = Vector3.Normalize(rayIn.Direction);
+            Vector3 normal = rec.normal;
+
+            Vector3 reflect = Vector3Util.Reflect(incident, normal);
+            Vector3 refract;
+
+            float reflectProb;
+            float cosine;
+            float refractionRatio;
+            Vector3 outwardNormal;
+
+            if (Vector3.DotProduct(incident, normal) > 0)
+            {
+                outwardNormal = -rec.normal;
+                refractionRatio = refIndex;
+                cosine = refIndex * Vector3.DotProduct(incident, normal);
+                refract = Vector3Util.Refraction(incident, outwardNormal, refIndex, 1.0f);
+            }
+            else
+            {
+                outwardNormal = rec.normal;
+                refractionRatio = 1.0f /refIndex;
+                cosine = - refIndex * Vector3.DotProduct(incident, normal);
+                refract = Vector3Util.Refraction(incident, outwardNormal, 1.0f, refIndex);
+            }
+         
+            if (refract != null)
+            {
+                reflectProb = Reflectance(cosine, refractionRatio);
+            }
+            else
+            {
+                reflectProb = 1.0f;
+                rayScattered = new Ray(rec.point, reflect);
+            }
+
+            if (MathUtil.RandomFloat() < reflectProb)
+            {
+                rayScattered = new Ray(rec.point, reflect);
+            }
+            else
+            {
+                rayScattered = new Ray(rec.point, refract);
+            }
+            return true;
+            //if (rec.frontFace)
+            //{
+            //    refract = Vector3Util.Refraction(incident, normal, 1.0f, refIndex);
+
+            //}
+            //else
+            //{
+            //    refract = Vector3Util.Refraction(incident, normal, refIndex, 1.0f);
+            //    refractionRatio = refIndex / 1.0f;
+            //}
+
+            //float cosine = MathF.Min(Vector3.DotProduct(-incident, normal), 1.0f);
+            //if (refract == null || Reflectance(cosine, refractionRatio) > MathUtil.RandomFloat())
+            //{
+            //    // 全反射。
+            //    rayScattered = new Ray(rec.point, reflect);
+            //    return false;
+            //}
+            //rayScattered = new Ray(rec.point, refract);
+            //return true;
+        }
+
+        private  float Reflectance(float cosine, float refIndex)
+        {
+            // Use Schlick's approximation for reflectance.
+            float r0 = (1.0f - refIndex) / (1.0f + refIndex);
+            r0 *= r0;
+            return r0 + (1 - r0) * MathF.Pow((1.0f - cosine), 5.0f);
+        }
+    }
+
 }

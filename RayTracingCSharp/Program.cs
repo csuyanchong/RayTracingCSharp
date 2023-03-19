@@ -21,13 +21,14 @@
             HittableList world = new();
 
             Material matGround = new Lambertian(new(0.8f, 0.8f, 0));
-            Material matCenter = new Lambertian(new(0.8f, 0.3f, 0.3f));
-            Material matLeft = new Metal(new(0.8f, 0.8f, 0.8f), 0.3f);
+            Material matCenter = new Lambertian(new(0.1f, 0.2f, 0.5f));
+            Material matLeft = new Dielectric(1.5f);
             Material matRight = new Metal(new(0.8f, 0.6f, 0.2f), 1f);
 
             world.Add(new Sphere(new(0, -100.5f, -1f), 100f, matGround));
             world.Add(new Sphere(new(0, 0, -1f), 0.5f, matCenter));
             world.Add(new Sphere(new(-1f, 0, -1f), 0.5f, matLeft));
+            world.Add(new Sphere(new(-1f, 0, -1f), -0.4f, matLeft));
             world.Add(new Sphere(new(1f, 0, -1f), 0.5f, matRight));
 
             // render part
