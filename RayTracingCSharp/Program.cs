@@ -6,9 +6,12 @@
         static void Main(string[] args)
         {
             // image setting
-            int imgWidth = 800;
-            int imgHeight = 400;
-            int samplePerPix = 100;
+            const int imgWidth = 800;
+            const int imgHeight = 400;
+            // 单个像素多重采样数
+            const int samplePerPix = 20;
+            // 最大反射次数
+            const int maxDepth = 50;
 
             Console.WriteLine("P3");
             Console.WriteLine(imgWidth + " " + imgHeight);
@@ -48,9 +51,10 @@
                         float u = (i + rd) / imgWidth;
                         float v = (j + rd) / imgHeight;
                         rayCam = cam.GetRay(u, v);
-                        color += Color(rayCam, world);
+                        color += Color(rayCam, world, maxDepth);
                     }
                     color /= samplePerPix;
+                    color = new Vector3(MathF.Sqrt(color.X), MathF.Sqrt(color.Y), MathF.Sqrt(color.Z));
 
                     int r = (int)(color.X * 255.99f);
                     int g = (int)(color.Y * 255.99f);
@@ -65,17 +69,23 @@
             }
         }
 
-        public static Vector3 Color(Ray ray, Hittable world)
+        public static Vector3 Color(Ray ray, Hittable world, int depth)
         {
             HitRecord rec = new();
-            if (world.Hit(ray, 0, float.PositiveInfinity, rec))
+            if (depth <= 0)
             {
-                //Vector3 hitPoint = ray.Point_at_param(rec.t);
-                Vector3 hitPNormal = rec.normal;
-                return (hitPNormal + Vector3.One()) * 0.5f;
+                return new Vector3(0, 0, 0);
+            }
+
+            if (world.Hit(ray, 0.001f, float.PositiveInfinity, rec))
+            {
+                // 递归返回碰撞物体的颜色，每次反射减少50%的能量。
+                var target = rec.point + rec.normal + RandomPointInUnitSphere();
+                return 0.5f *Color(new Ray(rec.point, target - rec.point), world, depth - 1);
             }
             else
             {
+                // 返回蓝色渐变背景。
                 Vector3 unitDir = Vector3.Normalize(ray.Direction);
                 float t = 0.5f * (unitDir.Y + 1.0f);
                 return (1.0f - t) * Vector3.One() + t * new Vector3(0.5f, 0.7f, 1.0f);
@@ -99,6 +109,21 @@
                 return -1;
             }
             return (-b - MathF.Sqrt(discriminant)) / (2 * a);
+        }
+
+        /// <summary>
+        /// 返回单位球内的随机点：-1<x<1, -1<y<1, -1<z<1。
+        /// </summary>
+        /// <returns></returns>
+        public static Vector3 RandomPointInUnitSphere()
+        {
+            Vector3 res;
+            Random rd =  new ();
+            do
+            {
+                res = 2 * new Vector3(rd.NextSingle(), rd.NextSingle(), rd.NextSingle()) - Vector3.One();
+            } while (res.Magnitude() >= 1.0);
+            return res;
         }
     }
 }
