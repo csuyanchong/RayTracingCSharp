@@ -66,51 +66,71 @@
         public override bool Scatter(Ray rayIn, HitRecord rec, out Color attenuation, out Ray rayScattered)
         {
             attenuation = new Color(1.0f, 1.0f, 1.0f);
-            Vector3 incident = Vector3.Normalize(rayIn.Direction);
-            Vector3 normal = rec.normal;
+            float refIndRatio = rec.frontFace ? (1.0f / refIndex) : refIndex;
 
-            Vector3 reflect = Vector3Util.Reflect(incident, normal);
-            Vector3 refract;
+            Vector3 unitRayIn = Vector3.Normalize(rayIn.Direction);
 
-            float reflectProb;
-            float cosine;
-            float refractionRatio;
-            Vector3 outwardNormal;
+            float cosTheta = MathF.Min(Vector3.DotProduct(-unitRayIn, rec.normal), 1);
+            float sinTheta = MathF.Sqrt(1 - cosTheta * cosTheta);
 
-            if (Vector3.DotProduct(incident, normal) > 0)
+            Vector3 scatterDir;
+            if (refIndRatio * sinTheta > 1.0f || Vector3Util.Reflectance(cosTheta, refIndRatio) > MathUtil.RandomFloat())
             {
-                outwardNormal = -rec.normal;
-                refractionRatio = refIndex;
-                cosine = refIndex * Vector3.DotProduct(incident, normal);
-                refract = Vector3Util.Refraction(incident, outwardNormal, refIndex, 1.0f);
+                // reflect
+                scatterDir = Vector3Util.Reflect(unitRayIn, rec.normal);
             }
             else
             {
-                outwardNormal = rec.normal;
-                refractionRatio = 1.0f /refIndex;
-                cosine = - refIndex * Vector3.DotProduct(incident, normal);
-                refract = Vector3Util.Refraction(incident, outwardNormal, 1.0f, refIndex);
+                // refraction
+                scatterDir = Vector3Util.Refraction(unitRayIn, rec.normal, refIndRatio);
             }
-         
-            if (refract != null)
-            {
-                reflectProb = Reflectance(cosine, refractionRatio);
-            }
-            else
-            {
-                reflectProb = 1.0f;
-                rayScattered = new Ray(rec.point, reflect);
-            }
-
-            if (MathUtil.RandomFloat() < reflectProb)
-            {
-                rayScattered = new Ray(rec.point, reflect);
-            }
-            else
-            {
-                rayScattered = new Ray(rec.point, refract);
-            }
+            rayScattered = new Ray(rec.point, scatterDir);
             return true;
+            //Vector3 incident = Vector3.Normalize(rayIn.Direction);
+            //Vector3 normal = rec.normal;
+
+            //Vector3 reflect = Vector3Util.Reflect(incident, normal);
+            //Vector3 refract;
+
+            //float reflectProb;
+            //float cosine;
+            //float refractionRatio;
+            //Vector3 outwardNormal;
+
+            //if (Vector3.DotProduct(incident, normal) > 0)
+            //{
+            //    outwardNormal = -rec.normal;
+            //    refractionRatio = refIndex;
+            //    cosine = refIndex * Vector3.DotProduct(incident, normal);
+            //    refract = Vector3Util.Refraction(incident, outwardNormal, refIndex, 1.0f);
+            //}
+            //else
+            //{
+            //    outwardNormal = rec.normal;
+            //    refractionRatio = 1.0f /refIndex;
+            //    cosine = - refIndex * Vector3.DotProduct(incident, normal);
+            //    refract = Vector3Util.Refraction(incident, outwardNormal, 1.0f, refIndex);
+            //}
+
+            //if (refract != null)
+            //{
+            //    reflectProb = Reflectance(cosine, refractionRatio);
+            //}
+            //else
+            //{
+            //    reflectProb = 1.0f;
+            //    rayScattered = new Ray(rec.point, reflect);
+            //}
+
+            //if (MathUtil.RandomFloat() < reflectProb)
+            //{
+            //    rayScattered = new Ray(rec.point, reflect);
+            //}
+            //else
+            //{
+            //    rayScattered = new Ray(rec.point, refract);
+            //}
+            //return true;
             //if (rec.frontFace)
             //{
             //    refract = Vector3Util.Refraction(incident, normal, 1.0f, refIndex);
@@ -131,14 +151,6 @@
             //}
             //rayScattered = new Ray(rec.point, refract);
             //return true;
-        }
-
-        private  float Reflectance(float cosine, float refIndex)
-        {
-            // Use Schlick's approximation for reflectance.
-            float r0 = (1.0f - refIndex) / (1.0f + refIndex);
-            r0 *= r0;
-            return r0 + (1 - r0) * MathF.Pow((1.0f - cosine), 5.0f);
         }
     }
 

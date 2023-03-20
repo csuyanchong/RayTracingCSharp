@@ -9,7 +9,7 @@
             const int imgWidth = 800;
             const int imgHeight = 400;
             // 单个像素多重采样数
-            const int samplePerPix = 20;
+            const int samplePerPix = 50;
             // 最大反射次数
             const int maxDepth = 50;
 
@@ -20,20 +20,26 @@
             // scene part
             HittableList world = new();
 
-            Material matGround = new Lambertian(new(0.8f, 0.8f, 0));
+            //float radius = MathF.Cos(MathF.PI / 4);
+            //Material matLeft = new Lambertian(new(0, 0, 1f));
+            //Material matRight = new Lambertian(new(1f, 0, 0));
+            //world.Add(new Sphere(new(-radius, 0.0f, -1f), radius, matLeft));
+            //world.Add(new Sphere(new(radius, 0.0f, -1f), radius, matRight));
+
+            Material matGround = new Lambertian(new(0.8f, 0.8f, 0.0f));
             Material matCenter = new Lambertian(new(0.1f, 0.2f, 0.5f));
             Material matLeft = new Dielectric(1.5f);
-            Material matRight = new Metal(new(0.8f, 0.6f, 0.2f), 1f);
+            Material matRight = new Metal(new(0.8f, 0.6f, 0.2f), 0.0f);
 
-            world.Add(new Sphere(new(0, -100.5f, -1f), 100f, matGround));
-            world.Add(new Sphere(new(0, 0, -1f), 0.5f, matCenter));
-            world.Add(new Sphere(new(-1f, 0, -1f), 0.5f, matLeft));
-            world.Add(new Sphere(new(-1f, 0, -1f), -0.4f, matLeft));
-            world.Add(new Sphere(new(1f, 0, -1f), 0.5f, matRight));
+            world.Add(new Sphere(new(0.0f, -100.5f, -1f), 100f, matGround));
+            world.Add(new Sphere(new(0.0f, 0.0f, -1f), 0.5f, matCenter));
+            world.Add(new Sphere(new(-1f, 0.0f, -1f), 0.5f, matLeft));
+            world.Add(new Sphere(new(-1f, 0.0f, -1f), -0.45f, matLeft));
+            world.Add(new Sphere(new(1f, 0.0f, -1f), 0.5f, matRight));
 
             // render part
             // camera
-            Camera cam = new();
+            Camera cam = new(new Vector3(-2f, 2f, 1), new Vector3(0, 0, -1f), new Vector3(0, 1, 0), 20, (float)imgWidth / imgHeight);
             Ray rayCam;
 
             for (int j = imgHeight - 1; j >= 0; j--)
@@ -41,7 +47,7 @@
                 for (int i = 0; i < imgWidth; i++)
                 {
                     // 每个像素多次采样，取平均值。
-                    Vector3 color = new(0, 0, 0);
+                    Vector3 color = new(0.0f, 0.0f, 0.0f);
                     for (int k = 0; k < samplePerPix; k++)
                     {
                         Random random = new();
@@ -72,17 +78,17 @@
             HitRecord rec = new();
             if (depth <= 0)
             {
-                return new Vector3(0, 0, 0);
+                return new Vector3(0.0f, 0.0f, 0.0f);
             }
 
             if (world.Hit(ray, 0.001f, float.PositiveInfinity, rec))
             {
-                if (rec.mat !=null && rec.mat.Scatter(ray, rec, out Color attenuation, out Ray rayScattered))
+                if (rec.mat != null && rec.mat.Scatter(ray, rec, out Color attenuation, out Ray rayScattered))
                 {
                     // 注：这里的*不是向量叉乘，而是相应分量的乘积。
                     return attenuation * Color(rayScattered, world, depth - 1);
                 }
-                return new Vector3(0, 0, 0);
+                return new Vector3(0.0f, 0.0f, 0.0f);
             }
 
             // 返回蓝色渐变背景。
@@ -107,7 +113,7 @@
             {
                 return -1;
             }
-            return (-b - MathF.Sqrt(discriminant)) / (2 * a);
+            return (-b - MathF.Sqrt(discriminant)) / (2.0f * a);
         }
 
     }

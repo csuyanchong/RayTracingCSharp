@@ -29,7 +29,7 @@
             vec.Z = -vec.Z;
             return vec;
         }
-            
+
         public static Vector3 operator +(Vector3 a, Vector3 b)
         {
             return new Vector3(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
@@ -106,10 +106,16 @@
             return dot;
         }
 
+        /// <summary>
+        /// 向量的叉积。
+        /// </summary>
+        /// <param name="vec1"></param>
+        /// <param name="vec2"></param>
+        /// <returns></returns>
         public static Vector3 CrossProduct(Vector3 vec1, Vector3 vec2)
         {
-            return new Vector3(vec1.Y * vec2.Z - vec1.Z * vec2.Y, 
-                vec1.Z * vec2.X - vec1.X * vec2.Z, 
+            return new Vector3(vec1.Y * vec2.Z - vec1.Z * vec2.Y,
+                vec1.Z * vec2.X - vec1.X * vec2.Z,
                 vec1.X * vec2.Y - vec2.X * vec1.Y
                 );
         }

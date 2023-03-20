@@ -29,5 +29,15 @@ namespace RayTracingCSharp
             Random rd = new();
             return rd.NextSingle();
         }
+
+        public static float Deg2Rad(float deg)
+        {
+            return 2 * MathF.PI * deg / 360;
+        }
+
+        public static float Rad2Deg(float rad)
+        {
+            return rad * 360 / (2 * MathF.PI);
+        }
     }
 }
