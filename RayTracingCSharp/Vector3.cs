@@ -130,5 +130,25 @@
         {
             return (v1 - v2).Magnitude();
         }
+
+        /// <summary>
+        /// 随机向量，x, y, z均在[0, 1)区间。
+        /// </summary>
+        /// <returns></returns>
+        public static Vector3 Random()
+        {
+            return new Vector3(MathUtil.RandomFloat(), MathUtil.RandomFloat(), MathUtil.RandomFloat());
+        }
+
+        /// <summary>
+        /// 随机向量，x, y, z均在[min, max)区间。
+        /// </summary>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
+        public static Vector3 RandomRange(float min, float max)
+        {
+            return new Vector3(MathUtil.RandomFloatRange(min, max), MathUtil.RandomFloatRange(min, max), MathUtil.RandomFloatRange(min, max));
+        }
     }
 }

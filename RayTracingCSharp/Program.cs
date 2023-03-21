@@ -5,10 +5,11 @@
         static void Main(string[] args)
         {
             // image setting
+            const float aspectRatio = 2 / 1;
             const int imgWidth = 800;
-            const int imgHeight = 400;
+            const int imgHeight = (int)(imgWidth / aspectRatio);
             // 单个像素多重采样数
-            const int samplePerPix = 50;
+            const int samplePerPix = 100;
             // 最大反射次数
             const int maxDepth = 50;
 
@@ -17,7 +18,7 @@
             Console.WriteLine(255);
 
             // scene part
-            HittableList world = new();
+            //HittableList world = new();
 
             //float radius = MathF.Cos(MathF.PI / 4);
             //Material matLeft = new Lambertian(new(0, 0, 1f));
@@ -25,26 +26,27 @@
             //world.Add(new Sphere(new(-radius, 0.0f, -1f), radius, matLeft));
             //world.Add(new Sphere(new(radius, 0.0f, -1f), radius, matRight));
 
-            Material matGround = new Lambertian(new(0.8f, 0.8f, 0.0f));
-            Material matCenter = new Lambertian(new(0.1f, 0.2f, 0.5f));
-            Material matLeft = new Dielectric(1.5f);
-            Material matRight = new Metal(new(0.8f, 0.6f, 0.2f), 0.0f);
+            //Material matGround = new Lambertian(new(0.8f, 0.8f, 0.0f));
+            //Material matCenter = new Lambertian(new(0.1f, 0.2f, 0.5f));
+            //Material matLeft = new Dielectric(1.5f);
+            //Material matRight = new Metal(new(0.8f, 0.6f, 0.2f), 0.0f);
 
-            world.Add(new Sphere(new(0.0f, -100.5f, -1f), 100f, matGround));
-            world.Add(new Sphere(new(0.0f, 0.0f, -1f), 0.5f, matCenter));
-            world.Add(new Sphere(new(-1f, 0.0f, -1f), 0.5f, matLeft));
-            world.Add(new Sphere(new(-1f, 0.0f, -1f), -0.45f, matLeft));
-            world.Add(new Sphere(new(1f, 0.0f, -1f), 0.5f, matRight));
+            //world.Add(new Sphere(new(0.0f, -100.5f, -1f), 100f, matGround));
+            //world.Add(new Sphere(new(0.0f, 0.0f, -1f), 0.5f, matCenter));
+            //world.Add(new Sphere(new(-1f, 0.0f, -1f), 0.5f, matLeft));
+            //world.Add(new Sphere(new(-1f, 0.0f, -1f), -0.45f, matLeft));
+            //world.Add(new Sphere(new(1f, 0.0f, -1f), 0.5f, matRight));
+
+            HittableList world = GenerateRandomScene();
 
             // render part
             // camera
-            Vector3 lookFrom = new(3f, 3f, 2f);
-            Vector3 lookAt = new(0, 0, -1f);
+            Vector3 lookFrom = new(13f, 2f, 3f);
+            Vector3 lookAt = new(0, 0, 0f);
             Vector3 up = new(0, 1, 0);
             float fov = 20f;
-            float aspectRatio = (float)imgWidth / imgHeight;
-            float aperture = 2.0f;
-            float distToFocus = Vector3.Distance(lookAt, lookFrom);
+            float aperture = 0.1f;
+            float distToFocus = 10;
             Camera cam = new(lookFrom, lookAt, up, fov, aspectRatio, aperture, distToFocus);
             Ray rayCam;
 
@@ -61,7 +63,7 @@
                         float u = (i + rd) / imgWidth;
                         float v = (j + rd) / imgHeight;
                         rayCam = cam.GetRay(u, v);
-                        color += Color(rayCam, world, maxDepth);
+                        color += HitColor(rayCam, world, maxDepth);
                     }
                     color /= samplePerPix;
                     color = new Vector3(MathF.Sqrt(color.X), MathF.Sqrt(color.Y), MathF.Sqrt(color.Z));
@@ -79,7 +81,7 @@
             }
         }
 
-        public static Vector3 Color(Ray ray, Hittable world, int depth)
+        public static Vector3 HitColor(Ray ray, Hittable world, int depth)
         {
             HitRecord rec = new();
             if (depth <= 0)
@@ -92,7 +94,7 @@
                 if (rec.mat != null && rec.mat.Scatter(ray, rec, out Color attenuation, out Ray rayScattered))
                 {
                     // 注：这里的*不是向量叉乘，而是相应分量的乘积。
-                    return attenuation * Color(rayScattered, world, depth - 1);
+                    return attenuation * HitColor(rayScattered, world, depth - 1);
                 }
                 return new Vector3(0.0f, 0.0f, 0.0f);
             }
@@ -104,23 +106,62 @@
 
         }
 
-        public static float HitSphere(Vector3 center, float radius, Ray ray)
+        /// <summary>
+        /// 创建随机场景。
+        /// </summary>
+        /// <returns></returns>
+        public static HittableList GenerateRandomScene()
         {
-            Vector3 origin = ray.Origin;
-            Vector3 dir = ray.Direction;
-            Vector3 AC = origin - center;
+            HittableList world = new();
 
-            float a = Vector3.DotProduct(dir, dir);
-            float b = 2 * Vector3.DotProduct(dir, AC);
-            float c = Vector3.DotProduct(AC, AC) - radius * radius;
+            var groundMat = new Lambertian(new Color(0.5f, 0.5f, 0.5f));
+            world.Add(new Sphere(new Vector3(0, -1000, 0), 1000, groundMat));
 
-            float discriminant = b * b - 4 * a * c;
-            if (discriminant < 0)
+            for (int i = 0; i < 11; i++)
             {
-                return -1;
-            }
-            return (-b - MathF.Sqrt(discriminant)) / (2.0f * a);
-        }
+                for (int j = 0; j < 11; j++)
+                {
+                    var chooseMat = MathUtil.RandomFloat();
+                    Vector3 center = new(i + 0.9f * MathUtil.RandomFloat(), 0.2f, j + 0.9f * MathUtil.RandomFloat());
+                    if (Vector3.Distance(center, new Vector3(4, 0.2f, 0)) > 0.9f)
+                    {
+                        Material sphereMat;
 
+                        if (chooseMat < 0.8f)
+                        {
+                            // 漫反射
+                            var colorRandom = Color.Random() * Color.Random();
+                            Color albedo = Color.FromVector3(colorRandom);
+                            sphereMat = new Lambertian(albedo);
+                            world.Add(new Sphere(center, 0.2f, sphereMat));
+                        }
+                        else if (chooseMat < 0.95f)
+                        {
+                            // 金属
+                            var colorRandom = Color.RandomRange(0.5f, 1);
+                            var fuzz = MathUtil.RandomFloatRange(0, 0.5f);
+                            sphereMat = new Metal(colorRandom, fuzz);
+                            world.Add(new Sphere(center, 0.2f, sphereMat));
+                        }
+                        else
+                        {
+                            // 玻璃
+                            sphereMat = new Dielectric(1.5f);
+                            world.Add(new Sphere(center, 0.2f, sphereMat));
+                        }
+                    }
+                }
+            }
+
+            var material1 = new Dielectric(1.5f);
+            world.Add(new Sphere(new Vector3(0, 1, 0), 1.0f, material1));
+
+            var material2 = new Lambertian(new Color(0.4f, 0.2f, 0.1f));
+            world.Add(new Sphere(new Vector3(-4, 1, 0), 1.0f, material2));
+
+            var material3 = new Metal(new Color(0.7f, 0.6f, 0.5f), 0);
+            world.Add(new Sphere(new Vector3(4, 1, 0), 1.0f, material3));
+            return world;
+        }
     }
 }

@@ -51,6 +51,17 @@ namespace RayTracingCSharp
         }
 
         /// <summary>
+        /// 返回[min, max)之间的随机浮点数。
+        /// </summary>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
+        public static float RandomFloatRange(float min, float max)
+        {
+            Random rd = new();
+            return min + (max - min) * rd.NextSingle();
+        }
+        /// <summary>
         /// 度数转弧度。
         /// </summary>
         /// <param name="deg"></param>
