@@ -119,5 +119,16 @@
                 vec1.X * vec2.Y - vec2.X * vec1.Y
                 );
         }
+
+        /// <summary>
+        /// 返回两个向量的距离。
+        /// </summary>
+        /// <param name="v1"></param>
+        /// <param name="v2"></param>
+        /// <returns></returns>
+        public static float Distance(Vector3 v1, Vector3 v2)
+        {
+            return (v1 - v2).Magnitude();
+        }
     }
 }

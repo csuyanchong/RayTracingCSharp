@@ -2,7 +2,6 @@
 {
     internal class Program
     {
-
         static void Main(string[] args)
         {
             // image setting
@@ -39,7 +38,14 @@
 
             // render part
             // camera
-            Camera cam = new(new Vector3(-2f, 2f, 1), new Vector3(0, 0, -1f), new Vector3(0, 1, 0), 20, (float)imgWidth / imgHeight);
+            Vector3 lookFrom = new (3f, 3f, 2f);
+            Vector3 lookAt = new (0, 0, -1f);
+            Vector3 up = new (0, 1, 0);
+            float fov = 20f;
+            float aspectRatio = (float)imgWidth / imgHeight;
+            float aperture = 2.0f;
+            float distToFocus = Vector3.Distance(lookAt, lookFrom);
+            Camera cam = new(lookFrom, lookAt, up, fov, aspectRatio, aperture, distToFocus);
             Ray rayCam;
 
             for (int j = imgHeight - 1; j >= 0; j--)
