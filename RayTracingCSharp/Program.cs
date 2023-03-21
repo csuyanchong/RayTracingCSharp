@@ -38,9 +38,9 @@
 
             // render part
             // camera
-            Vector3 lookFrom = new (3f, 3f, 2f);
-            Vector3 lookAt = new (0, 0, -1f);
-            Vector3 up = new (0, 1, 0);
+            Vector3 lookFrom = new(3f, 3f, 2f);
+            Vector3 lookAt = new(0, 0, -1f);
+            Vector3 up = new(0, 1, 0);
             float fov = 20f;
             float aspectRatio = (float)imgWidth / imgHeight;
             float aperture = 2.0f;

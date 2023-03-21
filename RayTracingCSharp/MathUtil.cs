@@ -32,7 +32,7 @@ namespace RayTracingCSharp
         public static Vector3 RandomInUnitCircle()
         {
             Vector3 res;
-            Random rd = new ();
+            Random rd = new();
             do
             {
                 res = 2 * new Vector3(rd.NextSingle(), rd.NextSingle(), 0) - new Vector3(1, 1, 0);
